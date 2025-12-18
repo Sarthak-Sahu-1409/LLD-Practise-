@@ -1,0 +1,44 @@
+#include <iostream>
+using namespace std;
+
+// ---------------- Target Interface ----------------
+class PaymentProcessor {
+public:
+    virtual void processPayment(double amountInRupees) = 0;
+    virtual ~PaymentProcessor() = default;
+};
+
+// ---------------- Adaptee ----------------
+class OldPaymentService {
+public:
+    void makePaymentInPaise(long paise) {
+        cout << "OldPaymentService: paid " << paise << " paise" << endl;
+    }
+};
+
+// ---------------- Adapter ----------------
+class OldPaymentAdapter : public PaymentProcessor {
+private:
+    OldPaymentService* service;
+
+public:
+    OldPaymentAdapter(OldPaymentService* svc)
+        : service(svc) {}
+
+    void processPayment(double amountInRupees) override {
+        long paise = (amountInRupees * 100);
+        service->makePaymentInPaise(paise);
+    }
+};
+
+// ---------------- Client ----------------
+int main() {
+    OldPaymentService legacyService;
+
+    PaymentProcessor* processor = new OldPaymentAdapter(&legacyService);
+
+    processor->processPayment(499.99);
+
+    delete processor;
+    return 0;
+}
