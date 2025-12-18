@@ -1,0 +1,52 @@
+#include <iostream>
+#include <string>
+#include <stdexcept>
+
+using namespace std;
+
+// ---------- Product Interface ----------
+class INotification {
+public:
+    virtual void send(const string& message) = 0;
+    virtual ~INotification() = default;
+};
+
+// ---------- Concrete Products ----------
+class EmailNotification : public INotification {
+public:
+    void send(const string& message) override {
+        cout << "Email sent: " << message << endl;
+    }
+};
+
+class SmsNotification : public INotification {
+public:
+    void send(const string& message) override {
+        cout << "SMS sent: " << message << endl;
+    }
+};
+
+// ---------- Factory ----------
+class NotificationFactory {
+public:
+    static INotification* create(const string& channel) {
+        if (channel == "email") {
+            return new EmailNotification();
+        }
+        if (channel == "sms") {
+            return new SmsNotification();
+        }
+        throw invalid_argument("Unknown notification channel");
+    }
+};
+
+// ---------- Client ----------
+int main() {
+    INotification* notification =
+        NotificationFactory::create("email");
+
+    notification->send("Your order has been placed");
+
+    delete notification;  // important
+    return 0;
+}
