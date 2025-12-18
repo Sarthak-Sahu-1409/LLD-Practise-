@@ -1,0 +1,82 @@
+#include <iostream>
+#include <vector>
+#include <string>
+#include <algorithm>
+
+using namespace std;
+
+// ---------------- Observer Interface ----------------
+class Observer {
+public:
+    virtual void update(const string& news) = 0;
+    virtual ~Observer() = default;
+};
+
+// ---------------- Subject Interface ----------------
+class Subject {
+public:
+    virtual void addObserver(Observer* o) = 0;
+    virtual void removeObserver(Observer* o) = 0;
+    virtual void notifyObservers() = 0;
+    virtual ~Subject() = default;
+};
+
+// ---------------- Concrete Subject ----------------
+class NewsAgency : public Subject {
+private:
+    vector<Observer*> observers;
+    string news;
+
+public:
+    void setNews(const string& news) {
+        this->news = news;
+        notifyObservers();
+    }
+
+    void addObserver(Observer* o) override {
+        observers.push_back(o);
+    }
+
+    void removeObserver(Observer* o) override {
+        observers.erase(
+            remove(observers.begin(), observers.end(), o),
+            observers.end()
+        );
+    }
+
+    void notifyObservers() override {
+        for (Observer* o : observers) {
+            o->update(news);
+        }
+    }
+};
+
+// ---------------- Concrete Observer ----------------
+class NewsChannel : public Observer {
+private:
+    string name;
+
+public:
+    NewsChannel(const string& name) : name(name) {}
+
+    void update(const string& news) override {
+        cout << "Channel " << name << " received: "
+             << news << endl;
+    }
+};
+
+// ---------------- Client ----------------
+int main() {
+    NewsAgency agency;
+
+    NewsChannel ch1("A");
+    NewsChannel ch2("B");
+
+    agency.addObserver(&ch1);
+    agency.addObserver(&ch2);
+
+    agency.setNews("Breaking: Design Patterns Made Easy!");
+    agency.setNews("Update: Observer pattern in action.");
+
+    return 0;
+}
